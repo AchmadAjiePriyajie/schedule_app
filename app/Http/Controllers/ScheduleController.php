@@ -15,12 +15,15 @@ class ScheduleController extends Controller
 
 
     // user: buat jadwal
-    public function store(Request $req)
+    public function store(Request $request)
     {
-        $data = $req->validate([
+        $data = $request->validate([
             'name' => 'required|string|max:255',
-            'location' => 'nullable|string',
-            'scheduled_at' => 'required|date|after:now',
+            'description' => 'nullable|string',
+            'scheduled_at' => 'required|date|after_or_equal:now',
+            'location' => 'required|string|max:255',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
         ]);
 
 
@@ -46,15 +49,18 @@ class ScheduleController extends Controller
 
 
     // admin: edit/update/delete
-    public function update(Request $req, Schedule $schedule)
+    public function update(Request $request, Schedule $schedule)
     {
         $this->authorize('manage', $schedule); // policy (lihat di bawah)
 
 
-        $data = $req->validate([
-            'name' => 'required|string|max:255',
-            'location' => 'nullable|string',
-            'scheduled_at' => 'required|date|after:now',
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'scheduled_at' => 'required|date|after_or_equal:now',
+            'location' => 'required|string|max:255',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
         ]);
 
 

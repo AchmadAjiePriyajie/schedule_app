@@ -15,7 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('name');
+            $table->text('description')->nullable();
             $table->text('location')->nullable();
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
             $table->dateTime('scheduled_at');
             $table->timestamp('reminder_sent_at')->nullable();
             $table->timestamps();

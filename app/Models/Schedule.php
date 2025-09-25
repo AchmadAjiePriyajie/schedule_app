@@ -20,6 +20,8 @@ class Schedule extends Model
         return $this->belongsTo(User::class);
     }
 
+   
+
     protected $casts = [
         'scheduled_at' => 'datetime',
     ];
