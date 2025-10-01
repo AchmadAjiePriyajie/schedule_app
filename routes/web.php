@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('dashboard');
+    return view('welcome');
 });
 
 Route::get('/dashboard', function () {
@@ -27,6 +27,7 @@ Route::get('/dashboard', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/schedules', [ScheduleController::class, 'index'])->name('schedules.index');
+    Route::get('/waiting-list', [ScheduleController::class, 'waitingSchedule'])->name('schedules.waiting');
     Route::post('/schedules', [ScheduleController::class, 'store'])->name('schedules.store');
     Route::put('/schedules/{schedule}', [ScheduleController::class, 'update'])->name('schedules.update');
     Route::delete('/schedules/{schedule}', [ScheduleController::class, 'destroy'])->name('schedules.destroy');
@@ -39,6 +40,9 @@ Route::middleware(['auth'])->group(function () {
 
         Mail::to('achmadajie74.epic@gmail.com')->send(new SendEmail($data));
     });
+    Route::get('/dashboard', [ScheduleController::class, 'dashboard'])->name('dashboard');
+    Route::get('/api/schedules', [ScheduleController::class, 'getSchedules'])->name('api.schedules');
+    Route::get('/attachments', [ScheduleController::class, 'attachments'])->name('schedules.attachments');
 });
 
 Route::middleware('auth')->group(function () {
