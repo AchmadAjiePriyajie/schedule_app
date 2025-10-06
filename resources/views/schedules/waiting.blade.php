@@ -14,6 +14,8 @@
                         @if (auth()->user()->is_admin)
                             <th class="px-4 py-2 border">User</th>
                         @endif
+                        <th class="px-4 py-2 border">Status</th>
+                        <th class="px-4 py-2 border">Attachment</th>
                         <th class="px-4 py-2 border">Aksi</th>
                     </tr>
                 </thead>
@@ -28,16 +30,88 @@
                             @if (auth()->user()->is_admin)
                                 <td class="px-4 py-2 border">{{ $schedule->user->name }}</td>
                             @endif
-                            <td class="px-4 py-2 border flex space-x-2">
-                                <button onclick='openEditModal(@json($schedule))'
-                                    class="bg-yellow-400 hover:bg-yellow-500 px-3 py-1 rounded-lg text-white shadow">Edit</button>
-                                <form action="{{ route('schedules.destroy', $schedule) }}" method="POST"
-                                    onsubmit="return confirm('Hapus jadwal ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg shadow">Hapus</button>
-                                </form>
+                            <td class="px-4 py-2 border">
+                                @php
+                                    $statusConfig = [
+                                        0 => ['label' => 'Pending', 'class' => 'bg-yellow-100 text-yellow-800'],
+                                        1 => ['label' => 'Accepted', 'class' => 'bg-green-100 text-green-800'],
+                                        2 => ['label' => 'On Going', 'class' => 'bg-blue-100 text-blue-800'],
+                                        3 => ['label' => 'Finished', 'class' => 'bg-gray-100 text-gray-800'],
+                                        4 => ['label' => 'Cancelled', 'class' => 'bg-red-100 text-red-800'],
+                                    ];
+                                    $currentStatus = $statusConfig[$schedule->status] ?? $statusConfig[0];
+                                @endphp
+                                <span class="px-3 py-1 rounded-full text-sm font-medium {{ $currentStatus['class'] }}">
+                                    {{ $currentStatus['label'] }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 border text-center">
+                                @if ($schedule->attachment)
+                                    @php
+                                        $extension = pathinfo($schedule->attachment, PATHINFO_EXTENSION);
+                                        $isImage = in_array(strtolower($extension), [
+                                            'jpg',
+                                            'jpeg',
+                                            'png',
+                                            'gif',
+                                            'webp',
+                                        ]);
+                                        $isPdf = strtolower($extension) === 'pdf';
+                                    @endphp
+
+                                    @if ($isImage)
+                                        <button
+                                            onclick='showAttachment("{{ asset('storage/' . $schedule->attachment) }}", "image", "{{ $schedule->name }}")'
+                                            class="inline-flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            Lihat
+                                        </button>
+                                    @elseif ($isPdf)
+                                        <a href="{{ asset('storage/' . $schedule->attachment) }}" target="_blank"
+                                            class="inline-flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                            </svg>
+                                            PDF
+                                        </a>
+                                    @else
+                                        <a href="{{ asset('storage/' . $schedule->attachment) }}" download
+                                            class="inline-flex items-center gap-1 bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-xs">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Download
+                                        </a>
+                                    @endif
+                                @else
+                                    <span class="text-gray-400 text-xs">-</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-2 border">
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick='openStatusModal(@json($schedule))'
+                                        class="bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded-lg text-white shadow text-sm">
+                                        Status
+                                    </button>
+                                    <button onclick='openEditModal(@json($schedule))'
+                                        class="bg-yellow-400 hover:bg-yellow-500 px-3 py-1 rounded-lg text-white shadow text-sm">
+                                        Edit
+                                    </button>
+                                    <form action="{{ route('schedules.destroy', $schedule) }}" method="POST"
+                                        onsubmit="return confirm('Hapus jadwal ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg shadow text-sm">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -47,11 +121,82 @@
         <div class="mt-4">{{ $schedules->links() }}</div>
     </div>
 
+    {{-- Modal Preview Attachment --}}
+    <div id="attachmentModal" class="fixed inset-0 bg-black bg-opacity-75 hidden justify-center items-center z-50">
+        <div class="bg-white p-4 rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="attachmentTitle" class="text-lg font-bold text-gray-800"></h3>
+                <button onclick="closeAttachmentModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div id="attachmentContent" class="flex justify-center">
+                <!-- Content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    {{-- Modal Status --}}
+    <div id="statusModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h2 class="text-lg font-bold mb-4">Ubah Status Jadwal</h2>
+            <form id="statusForm" method="POST" class="space-y-4">
+                @csrf
+                @method('PATCH')
+
+                <div>
+                    <label class="block text-gray-600 mb-1">Nama Acara</label>
+                    <p id="statusScheduleName" class="font-semibold text-gray-800"></p>
+                </div>
+
+                <div>
+                    <label class="block text-gray-600 mb-2">Pilih Status</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="status" value="0" class="mr-3">
+                            <span
+                                class="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                        </label>
+                        <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="status" value="1" class="mr-3">
+                            <span
+                                class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">Accepted</span>
+                        </label>
+                        <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="status" value="2" class="mr-3">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">On
+                                Going</span>
+                        </label>
+                        <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="status" value="3" class="mr-3">
+                            <span
+                                class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">Finished</span>
+                        </label>
+                        <label class="flex items-center p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="radio" name="status" value="4" class="mr-3">
+                            <span
+                                class="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">Cancelled</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-4">
+                    <button type="button" onclick="closeStatusModal()"
+                        class="px-4 py-2 border rounded-lg hover:bg-gray-100">Batal</button>
+                    <button type="submit"
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     {{-- Modal Edit Jadwal --}}
     <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50">
         <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <h2 class="text-lg font-bold mb-4">Edit Jadwal</h2>
-            <form id="editForm" method="POST" class="space-y-4">
+            <form id="editForm" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 @method('PUT')
 
@@ -63,10 +208,18 @@
                         required>
                 </div>
 
-                {{-- Tanggal & Waktu --}}
+                {{-- Start Time --}}
                 <div>
-                    <label class="block text-gray-600 mb-1">Tanggal & Waktu</label>
-                    <input type="datetime-local" name="scheduled_at" id="editDatetime"
+                    <label class="block text-gray-600 mb-1">Waktu Mulai</label>
+                    <input type="datetime-local" name="start_time" id="editStart"
+                        class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                        required>
+                </div>
+
+                {{-- End Time --}}
+                <div>
+                    <label class="block text-gray-600 mb-1">Waktu Selesai</label>
+                    <input type="datetime-local" name="end_time" id="editEnd"
                         class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
                         required>
                 </div>
@@ -76,6 +229,15 @@
                     <label class="block text-gray-600 mb-1">Deskripsi Acara</label>
                     <textarea name="description" id="editDescription" rows="3"
                         class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400"></textarea>
+                </div>
+
+                {{-- Attachment --}}
+                <div>
+                    <label class="block text-gray-600 mb-1">Attachment (Opsional)</label>
+                    <input type="file" name="attachment" id="editAttachment" accept="image/*,.pdf,.doc,.docx"
+                        class="w-full border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400">
+                    <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG, PDF, DOC, DOCX (Max: 5MB)</p>
+                    <div id="currentAttachment" class="mt-2"></div>
                 </div>
 
                 {{-- Lokasi (search + map picker) --}}
@@ -117,7 +279,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <style>
-        /* Fix untuk marker icon Leaflet */
         .leaflet-default-icon-path {
             background-image: url(https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png);
         }
@@ -131,56 +292,116 @@
         let editMap, editMarker;
         let mapInitialized = false;
 
-        // Fungsi untuk buka modal edit
+        // ==== Fungsi Attachment Preview ====
+        function showAttachment(url, type, title) {
+            const modal = document.getElementById('attachmentModal');
+            const content = document.getElementById('attachmentContent');
+            const titleEl = document.getElementById('attachmentTitle');
+
+            titleEl.textContent = title;
+
+            if (type === 'image') {
+                content.innerHTML = `<img src="${url}" class="max-w-full h-auto rounded-lg" alt="${title}">`;
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeAttachmentModal() {
+            const modal = document.getElementById('attachmentModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // ==== Fungsi Status Modal ====
+        function openStatusModal(schedule) {
+            document.getElementById('statusScheduleName').textContent = schedule.name;
+            document.getElementById('statusForm').action = `/schedules/${schedule.id}/status`;
+
+            const radioButtons = document.querySelectorAll('input[name="status"]');
+            radioButtons.forEach(radio => {
+                if (parseInt(radio.value) === schedule.status) {
+                    radio.checked = true;
+                }
+            });
+
+            const modal = document.getElementById('statusModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeStatusModal() {
+            const modal = document.getElementById('statusModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // ==== Fungsi Edit Modal ====
         function openEditModal(jadwal) {
             console.log('Opening modal with schedule:', jadwal);
 
-            // Isi field form
-            document.getElementById('editName').value = jadwal.name;
-            document.getElementById('editDatetime').value = jadwal.scheduled_at.replace(' ', 'T');
-            document.getElementById('editDescription').value = jadwal.description ?? '';
-            document.getElementById('editLocation').value = jadwal.location ?? '';
-            document.getElementById('editLatitude').value = jadwal.latitude ?? '';
-            document.getElementById('editLongitude').value = jadwal.longitude ?? '';
+            document.getElementById('editName').value = jadwal.name || '';
 
-            // Update action form
+            let startTime = jadwal.start_time || '';
+            let endTime = jadwal.end_time || '';
+            if (startTime) {
+                startTime = startTime.substring(0, 16).replace(' ', 'T');
+            }
+            if (endTime) {
+                endTime = endTime.substring(0, 16).replace(' ', 'T');
+            }
+            document.getElementById('editStart').value = startTime;
+            document.getElementById('editEnd').value = endTime;
+
+            document.getElementById('editDescription').value = jadwal.description || '';
+            document.getElementById('editLocation').value = jadwal.location || '';
+            document.getElementById('editLocationSearch').value = jadwal.location || '';
+            document.getElementById('editLatitude').value = jadwal.latitude || '';
+            document.getElementById('editLongitude').value = jadwal.longitude || '';
+
+            // Show current attachment
+            const currentAttachmentDiv = document.getElementById('currentAttachment');
+            if (jadwal.attachment) {
+                currentAttachmentDiv.innerHTML = `
+                    <div class="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                        <span class="font-medium">File saat ini: </span>
+                        <a href="/storage/${jadwal.attachment}" target="_blank" class="text-blue-500 hover:underline">
+                            ${jadwal.attachment.split('/').pop()}
+                        </a>
+                    </div>
+                `;
+            } else {
+                currentAttachmentDiv.innerHTML = '';
+            }
+
             document.getElementById('editForm').action = `/schedules/${jadwal.id}`;
 
-            // Tampilkan modal dengan flex
             const modal = document.getElementById('editModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
 
-            // Default koordinat (Jakarta jika tidak ada data)
-            let lat = jadwal.latitude || -6.200000;
-            let lng = jadwal.longitude || 106.816666;
+            let lat = parseFloat(jadwal.latitude) || -6.200000;
+            let lng = parseFloat(jadwal.longitude) || 106.816666;
 
-            // Inisialisasi map setelah modal tampil
             setTimeout(() => {
                 if (!mapInitialized) {
-                    console.log('Initializing map for the first time');
-
-                    // Inisialisasi map
                     editMap = L.map('editMap').setView([lat, lng], 13);
 
-                    // Tile dari OSM
                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         maxZoom: 19,
                         attribution: '© OpenStreetMap'
                     }).addTo(editMap);
 
-                    // Tambahkan marker
                     editMarker = L.marker([lat, lng], {
                         draggable: true
                     }).addTo(editMap);
 
-                    // Event drag marker
                     editMarker.on('dragend', function(e) {
                         let pos = e.target.getLatLng();
                         updateEditLocation(pos.lat, pos.lng, 'Lokasi dipilih dari map');
                     });
 
-                    // Klik map untuk pindahkan marker
                     editMap.on('click', function(e) {
                         let lat = e.latlng.lat;
                         let lng = e.latlng.lng;
@@ -190,25 +411,21 @@
 
                     mapInitialized = true;
                 } else {
-                    console.log('Updating existing map');
-                    // Update posisi map dan marker kalau map sudah ada
                     editMap.setView([lat, lng], 13);
                     editMarker.setLatLng([lat, lng]);
-
-                    // Invalidate size untuk refresh map
-                    editMap.invalidateSize();
+                    setTimeout(() => {
+                        editMap.invalidateSize();
+                    }, 50);
                 }
-            }, 100);
+            }, 200);
         }
 
-        // Fungsi untuk close modal edit
         function closeEditModal() {
             const modal = document.getElementById('editModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
         }
 
-        // Update hidden field lokasi
         function updateEditLocation(lat, lng, name = '') {
             document.getElementById('editLatitude').value = lat;
             document.getElementById('editLongitude').value = lng;
@@ -253,7 +470,6 @@
                             document.getElementById('editLatitude').value = place.lat;
                             document.getElementById('editLongitude').value = place.lon;
 
-                            // Pindahkan map + marker
                             if (editMap) {
                                 editMap.setView([place.lat, place.lon], 15);
                                 editMarker.setLatLng([place.lat, place.lon]);
@@ -272,7 +488,6 @@
             }
         });
 
-        // Close search results when clicking outside
         document.addEventListener('click', function(e) {
             const searchInput = document.getElementById('editLocationSearch');
             const resultsList = document.getElementById('editSearchResults');

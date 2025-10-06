@@ -43,6 +43,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [ScheduleController::class, 'dashboard'])->name('dashboard');
     Route::get('/api/schedules', [ScheduleController::class, 'getSchedules'])->name('api.schedules');
     Route::get('/attachments', [ScheduleController::class, 'attachments'])->name('schedules.attachments');
+    Route::patch('schedules/{schedule}/status', [ScheduleController::class, 'updateStatus'])->name('schedules.updateStatus');
 });
 
 Route::middleware('auth')->group(function () {

@@ -78,12 +78,14 @@ class ScheduleController extends Controller
 
     public function dashboard()
     {
+        
         if (Auth::user()->is_admin) {
             $schedules = Schedule::with('user')->latest()->paginate(20);
+            $waitingSchedules = Schedule::where('status', 0)->count();
         } else {
             $schedules = Auth::user()->schedules()->latest()->paginate(20);
         }
-        return view('dashboard', compact('schedules'));
+        return view('dashboard', compact(['schedules', 'waitingSchedules']));
     }
 
     public function attachments()
@@ -148,23 +150,30 @@ class ScheduleController extends Controller
     // admin: edit/update/delete
     public function update(Request $request, Schedule $schedule)
     {
-        $this->authorize('manage', $schedule); // policy (lihat di bawah)
-
-
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'start_time' => 'required|date',
+            'end_time' => 'required|date|after:start_time',
             'description' => 'nullable|string',
-            'scheduled_at' => 'required|date|after_or_equal:now',
-            'location' => 'required|string|max:255',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
+            'location' => 'nullable|string',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120', // 5MB
         ]);
 
+        // Handle file upload
+        if ($request->hasFile('attachment')) {
+            // Delete old file if exists
+            if ($schedule->attachment) {
+                Storage::disk('public')->delete($schedule->attachment);
+            }
 
-        $schedule->update($data);
+            $validated['attachment'] = $request->file('attachment')->store('attachments', 'public');
+        }
 
+        $schedule->update($validated);
 
-        return redirect()->back()->with('success', 'Jadwal diperbarui');
+        return redirect()->back()->with('success', 'Jadwal berhasil diupdate');
     }
 
 
@@ -173,5 +182,18 @@ class ScheduleController extends Controller
         $this->authorize('manage', $schedule);
         $schedule->delete();
         return redirect()->back()->with('success', 'Jadwal dihapus');
+    }
+
+    public function updateStatus(Request $request, Schedule $schedule)
+    {
+        $request->validate([
+            'status' => 'required|integer|in:0,1,2,3,4'
+        ]);
+
+        $schedule->update([
+            'status' => $request->status
+        ]);
+
+        return redirect()->back()->with('success', 'Status jadwal berhasil diubah');
     }
 }

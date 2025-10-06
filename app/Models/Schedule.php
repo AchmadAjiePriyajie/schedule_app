@@ -19,7 +19,8 @@ class Schedule extends Model
         'location',
         'latitude',
         'longitude',
-        'attachment'
+        'attachment',
+        'status',
     ];
 
     protected $dates = ['scheduled_at', 'reminder_sent_at', 'created_at', 'updated_at'];
