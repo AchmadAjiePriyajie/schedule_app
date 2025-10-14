@@ -84,6 +84,8 @@ class ScheduleController extends Controller
             $waitingSchedules = Schedule::where('status', 0)->count();
         } else {
             $schedules = Auth::user()->schedules()->latest()->paginate(20);
+            $waitingSchedules = 0;
+
         }
         return view('dashboard', compact(['schedules', 'waitingSchedules']));
     }
@@ -114,7 +116,7 @@ class ScheduleController extends Controller
     public function getSchedules()
     {
         if (Auth::user()->is_admin) {
-            $schedules = Schedule::all()->map(function ($schedule) {
+            $schedules = Schedule::where('status', '!=', 0)->get()->map(function ($schedule) {
                 return [
                     'id'          => $schedule->id,
                     'title'       => $schedule->name,

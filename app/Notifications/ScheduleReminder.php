@@ -33,7 +33,7 @@ class ScheduleReminder extends Notification
         return (new MailMessage)
             ->subject('Pengingat: ' . $this->schedule->name)
             ->line('Ini pengingat untuk acara: ' . $this->schedule->name)
-            ->line('Waktu: ' . $this->schedule->scheduled_at->format('d M Y H:i'))
+            ->line('Waktu: ' . $this->schedule->start_time->format('d M Y H:i') . '- ' . $this->schedule->end_time->format('d M Y H:i'))
             ->line('Lokasi: ' . ($this->schedule->location ?? '-'))
             ->action('Lihat Jadwal', url(route('schedules.index')))
             ->line('Terima kasih.');

@@ -19,7 +19,7 @@ class SendScheduleReminder extends Command
         $tomorrowEnd = Carbon::tomorrow()->endOfDay();
 
 
-        $schedules = Schedule::whereBetween('scheduled_at', [$tomorrowStart, $tomorrowEnd])
+        $schedules = Schedule::whereBetween('start_time', [$tomorrowStart, $tomorrowEnd])
             ->whereNull('reminder_sent_at')
             ->with('user')
             ->get();
