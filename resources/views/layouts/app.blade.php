@@ -29,33 +29,33 @@
 
             <!-- Logo -->
             <div class="flex items-center gap-2 mb-10">
-                <span class="text-3xl">🚀</span>
-                <h1 x-show="sidebarOpen" class="text-xl font-extrabold tracking-wide">MyApp</h1>
+                <span class="text-3xl"></span>
+                <h1 x-show="sidebarOpen" class="text-xl font-extrabold tracking-wide">Jadwal</h1>
             </div>
 
             <!-- Menu -->
             <nav class="space-y-2 flex-1">
                 <a href="{{ route('dashboard') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg transition hover:bg-blue-500/30 {{ request()->routeIs('dashboard') ? 'bg-blue-500/40' : '' }}">
-                    <span>🏠</span>
-                    <span x-show="sidebarOpen" class="font-medium">Dashboard</span>
+                    <span></span>
+                    <span x-show="sidebarOpen" class="font-medium">Home</span>
                 </a>
                 <a href="{{ route('schedules.index') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg transition hover:bg-blue-500/30 {{ request()->routeIs('schedules.index') ? 'bg-blue-500/40' : '' }}">
-                    <span>📅</span>
-                    <span x-show="sidebarOpen" class="font-medium">Schedules</span>
+                    <span></span>
+                    <span x-show="sidebarOpen" class="font-medium">Agenda</span>
                 </a>
                 @if (auth()->user()->is_admin)
                     <a href="{{ route('schedules.waiting') }}"
                         class="flex items-center gap-3 px-3 py-2 rounded-lg transition hover:bg-blue-500/30 {{ request()->routeIs('schedules.waiting') ? 'bg-blue-500/40' : '' }}">
-                        <span>⏳</span>
-                        <span x-show="sidebarOpen" class="font-medium">Waiting</span>
+                        <span></span>
+                        <span x-show="sidebarOpen" class="font-medium">Antrian</span>
                     </a>
                 @endif
                 <a href="{{ route('schedules.attachments') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg transition hover:bg-blue-500/30 {{ request()->routeIs('schedules.attachments') ? 'bg-blue-500/40' : '' }}">
-                    <span>📁</span>
-                    <span x-show="sidebarOpen" class="font-medium">Attachment</span>
+                    <span></span>
+                    <span x-show="sidebarOpen" class="font-medium">Arsip</span>
                 </a>
             </nav>
 
@@ -64,7 +64,7 @@
                 <a href="{{ route('logout') }}"
                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg transition hover:bg-red-600/30">
-                    <span>🚪</span>
+                    <span></span>
                     <span x-show="sidebarOpen" class="font-medium">Logout</span>
                 </a>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">

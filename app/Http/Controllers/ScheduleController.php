@@ -26,6 +26,7 @@ class ScheduleController extends Controller
             'location' => 'required|string|max:255',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
+            'nomor_surat' => 'required|numeric',
             'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,zip|max:5120',
         ]);
 
@@ -78,7 +79,7 @@ class ScheduleController extends Controller
 
     public function dashboard()
     {
-        
+
         if (Auth::user()->is_admin) {
             $schedules = Schedule::with('user')->latest()->paginate(20);
             $waitingSchedules = Schedule::where('status', 0)->count();
@@ -113,34 +114,56 @@ class ScheduleController extends Controller
         return view('schedules.attachment', compact('schedules', 'totalFiles'));
     }
 
-    public function getSchedules()
+    public function getSchedules(Request $request)
     {
+        $start = $request->query('start');
+        $end = $request->query('end');
+
+        // Tentukan query sesuai role user
         if (Auth::user()->is_admin) {
-            $schedules = Schedule::where('status', '!=', 0)->get()->map(function ($schedule) {
-                return [
-                    'id'          => $schedule->id,
-                    'title'       => $schedule->name,
-                    'start'       => \Carbon\Carbon::parse($schedule->scheduled_at)->toIso8601String(),
-                    'end'         => \Carbon\Carbon::parse($schedule->scheduled_at)->addHours(2)->toIso8601String(), // contoh durasi 2 jam
-                    'description' => $schedule->description,
-                    'location'    => $schedule->location,
-                ];
-            });
+            $query = Schedule::where('status', '!=', 0);
         } else {
-            $schedules = Auth::user()->schedules()->get()->map(function ($schedule) {
-                return [
-                    'id'          => $schedule->id,
-                    'title'       => $schedule->name,
-                    'start'       => \Carbon\Carbon::parse($schedule->scheduled_at)->toIso8601String(),
-                    'end'         => \Carbon\Carbon::parse($schedule->scheduled_at)->addHours(2)->toIso8601String(),
-                    'description' => $schedule->description,
-                    'location'    => $schedule->location,
-                ];
+            $query = Auth::user()
+                ->schedules()
+                ->where('status', '!=', 0);
+        }
+
+        // Filter event berdasarkan rentang tanggal yang sedang dilihat di kalender
+        if ($start && $end) {
+            $query->where(function ($q) use ($start, $end) {
+                $q->whereBetween('start_time', [$start, $end])
+                    ->orWhereBetween('end_time', [$start, $end])
+                    ->orWhere(function ($q2) use ($start, $end) {
+                        // Event yang dimulai sebelum start tapi berakhir sesudah end
+                        $q2->where('start_time', '<', $start)
+                            ->where('end_time', '>', $end);
+                    });
             });
         }
 
+        // Ambil semua event dan ubah jadi format FullCalendar
+        $schedules = $query->get()->map(function ($schedule) {
+            return [
+                'id' => $schedule->id,
+                'title' => $schedule->name,
+                'start' => \Carbon\Carbon::parse($schedule->start_time)->startOfDay()->toIso8601String(),
+                'end' => \Carbon\Carbon::parse($schedule->end_time)->endOfDay()->toIso8601String(),
+                'description' => $schedule->description,
+                'location' => $schedule->location,
+                'allDay' => true, // tampil tanpa jam (full day)
+                'backgroundColor' => '#3b82f6',
+                'borderColor' => '#2563eb',
+                'textColor' => '#ffffff',
+            ];
+        });
+
         return response()->json($schedules->values());
     }
+
+
+
+
+
 
     public function waitingSchedule()
     {
@@ -159,6 +182,7 @@ class ScheduleController extends Controller
             'description' => 'nullable|string',
             'location' => 'nullable|string',
             'latitude' => 'nullable|numeric',
+            'nomor_surat' => 'required|numeric',
             'longitude' => 'nullable|numeric',
             'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120', // 5MB
         ]);

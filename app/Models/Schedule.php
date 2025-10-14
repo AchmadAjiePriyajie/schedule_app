@@ -21,6 +21,7 @@ class Schedule extends Model
         'longitude',
         'attachment',
         'status',
+        'nomor_surat'
     ];
 
     protected $dates = ['scheduled_at', 'reminder_sent_at', 'created_at', 'updated_at'];
