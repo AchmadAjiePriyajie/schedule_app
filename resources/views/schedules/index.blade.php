@@ -10,11 +10,11 @@
 
             {{-- Nomor Surat --}}
             <div>
-                <label class="block text-gray-700 font-medium mb-2">Nomor Surat <span
+                <label class="block text-gray-700 font-medium mb-2">Nomor Permohonan <span
                         class="text-red-500">*</span></label>
                 <input type="number" name="nomor_surat"
                     class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
-                    required placeholder="Masukkan nomor surat">
+                    required placeholder="Masukkan nomor permohonan">
             </div>
 
             {{-- Nama Acara --}}

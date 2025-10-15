@@ -57,6 +57,20 @@
                     <span></span>
                     <span x-show="sidebarOpen" class="font-medium">Arsip</span>
                 </a>
+                @if (auth()->user()->is_admin)
+                    <a href="{{ route('reports.index') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg transition hover:bg-blue-500/30 {{ request()->routeIs('reports.index') ? 'bg-blue-500/40' : '' }}">
+                        <span></span>
+                        <span x-show="sidebarOpen" class="font-medium">Laporan</span>
+                    </a>
+                @endif
+                @if (auth()->user()->is_admin)
+                    <a href="{{ route('users.create') }}"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg transition hover:bg-blue-500/30 {{ request()->routeIs('schedules.create') ? 'bg-blue-500/40' : '' }}">
+                        <span></span>
+                        <span x-show="sidebarOpen" class="font-medium">Tambah User</span>
+                    </a>
+                @endif
             </nav>
 
             <!-- Footer sidebar -->

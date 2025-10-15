@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Schedule;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -15,53 +16,66 @@ class ScheduleController extends Controller
     }
 
 
-    // user: buat jadwal
+
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date|after:start_time',
-            'location' => 'required|string|max:255',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'nomor_surat' => 'required|numeric',
-            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,zip|max:5120',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'start_time' => 'required|date',
+                'end_time' => 'required|date|after:start_time',
+                'location' => 'required|string|max:255',
+                'latitude' => 'required|numeric',
+                'longitude' => 'required|numeric',
+                'nomor_surat' => 'required|numeric|unique:schedules,nomor_surat',
+                'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,zip|max:5120',
+            ]);
 
-        if ($request->hasFile('attachment')) {
-            // Ambil tanggal hari ini
-            $tanggal = date('dmY');
+            if ($request->hasFile('attachment')) {
+                // Ambil tanggal hari ini
+                $tanggal = date('dmY');
 
-            // Hitung berapa file yang sudah ada hari ini di folder storage
-            $filesToday = collect(\Storage::disk('public')->files('attachments'))
-                ->filter(function ($file) use ($tanggal) {
-                    return str_contains($file, "_{$tanggal}");
-                });
+                // Hitung berapa file yang sudah ada hari ini di folder storage
+                $filesToday = collect(\Storage::disk('public')->files('attachments'))
+                    ->filter(fn($file) => str_contains($file, "_{$tanggal}"));
 
-            // Nomor urut = jumlah file hari ini + 1
-            $counter = $filesToday->count() + 1;
+                // Nomor urut = jumlah file hari ini + 1
+                $counter = $filesToday->count() + 1;
 
-            // Format nama file 0001_tanggalbulantahun.ext
-            $namaFile = sprintf(
-                "%04d_%s.%s",
-                $counter,
-                $tanggal,
-                $request->file('attachment')->getClientOriginalExtension()
-            );
+                // Format nama file 0001_tanggalbulantahun.ext
+                $namaFile = sprintf(
+                    "%04d_%s.%s",
+                    $counter,
+                    $tanggal,
+                    $request->file('attachment')->getClientOriginalExtension()
+                );
 
-            // Simpan dengan nama custom
-            $validated['attachment'] = $request->file('attachment')
-                ->storeAs('attachments', $namaFile, 'public');
+                // Simpan dengan nama custom
+                $validated['attachment'] = $request->file('attachment')
+                    ->storeAs('attachments', $namaFile, 'public');
+            }
+
+            $validated['user_id'] = auth()->id();
+
+            Schedule::create($validated);
+
+            return redirect()->back()->with('success', 'Jadwal berhasil ditambahkan!');
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23000') {
+                // kode 23000 = pelanggaran constraint, seperti duplikat unique
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'Nomor surat sudah digunakan. Silakan gunakan nomor lain.');
+            }
+
+            // Error lain
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan pada database: ' . $e->getMessage());
         }
-
-        $validated['user_id'] = auth()->id();
-
-        Schedule::create($validated);
-
-        return redirect()->back()->with('success', 'Jadwal berhasil ditambahkan!');
     }
+
 
 
     // user: lihat jadwal sendiri
@@ -182,7 +196,7 @@ class ScheduleController extends Controller
             'description' => 'nullable|string',
             'location' => 'nullable|string',
             'latitude' => 'nullable|numeric',
-            'nomor_surat' => 'required|numeric',
+            'nomor_surat' => 'required|numeric|unique:schedules,nomor_surat',
             'longitude' => 'nullable|numeric',
             'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120', // 5MB
         ]);

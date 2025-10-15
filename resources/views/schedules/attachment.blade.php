@@ -6,7 +6,7 @@
         <div class="bg-white shadow-lg rounded-xl p-6 mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-800">📁 Surat Pengajuan</h1>
+                    <h1 class="text-2xl font-bold text-gray-800">Surat Pengajuan</h1>
                     <p class="text-gray-600 text-sm mt-1">Semua file yang diupload pada jadwal</p>
                 </div>
                 <div class="text-right">

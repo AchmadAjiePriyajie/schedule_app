@@ -7,6 +7,7 @@
             <table class="min-w-full border border-gray-200">
                 <thead class="bg-gray-100">
                     <tr>
+                        <th class="px-4 py-2 border">Nomor Permohonan</th>
                         <th class="px-4 py-2 border">Nama Acara</th>
                         <th class="px-4 py-2 border">Tanggal & Waktu</th>
                         <th class="px-4 py-2 border">Lokasi</th>
@@ -21,6 +22,7 @@
                 <tbody class="divide-y">
                     @foreach ($schedules as $schedule)
                         <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2 border">{{ $schedule->nomor_surat }}</td>
                             <td class="px-4 py-2 border">{{ $schedule->name }}</td>
                             <td class="px-4 py-2 border">
                                 {{ \Carbon\Carbon::parse($schedule->scheduled_at)->format('d M Y H:i') }}</td>
