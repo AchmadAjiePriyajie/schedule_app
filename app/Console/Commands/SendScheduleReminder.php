@@ -15,7 +15,7 @@ class SendScheduleReminder extends Command
 
     public function handle()
     {
-        $tomorrowStart = Carbon::tomorrow()->startOfDay();
+        $tomorrowStart = Carbon::today()->startOfDay();
         $tomorrowEnd = Carbon::tomorrow()->endOfDay();
 
 

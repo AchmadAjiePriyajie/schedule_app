@@ -28,7 +28,7 @@ class ScheduleController extends Controller
                 'location' => 'required|string|max:255',
                 'latitude' => 'required|numeric',
                 'longitude' => 'required|numeric',
-                'nomor_surat' => 'required|numeric|unique:schedules,nomor_surat',
+                'nomor_surat' => 'required|string|unique:schedules,nomor_surat',
                 'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,zip|max:5120',
             ]);
 
@@ -160,14 +160,15 @@ class ScheduleController extends Controller
             return [
                 'id' => $schedule->id,
                 'title' => $schedule->name,
-                'start' => \Carbon\Carbon::parse($schedule->start_time)->startOfDay()->toIso8601String(),
-                'end' => \Carbon\Carbon::parse($schedule->end_time)->endOfDay()->toIso8601String(),
+                'start' => \Carbon\Carbon::parse($schedule->start_time)->toIso8601String(),
+                'end' => \Carbon\Carbon::parse($schedule->end_time)->toIso8601String(),
                 'description' => $schedule->description,
                 'location' => $schedule->location,
-                'allDay' => true, // tampil tanpa jam (full day)
+                'allDay' => false, // tampil tanpa jam (full day)
                 'backgroundColor' => '#3b82f6',
                 'borderColor' => '#2563eb',
                 'textColor' => '#ffffff',
+                'status' => $schedule->status,
             ];
         });
 
@@ -179,27 +180,77 @@ class ScheduleController extends Controller
 
 
 
-    public function waitingSchedule()
+    public function waitingSchedule(Request $request)
     {
-        $schedules = Schedule::where('status', 0)->latest()->paginate(20);
+        $query = Schedule::query();
 
+        // Filter tanggal
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('start_time', [
+                $request->start_date . ' 00:00:00',
+                $request->end_date . ' 23:59:59'
+            ]);
+        } elseif ($request->filled('start_date')) {
+            $query->whereDate('start_time', '>=', $request->start_date);
+        } elseif ($request->filled('end_date')) {
+            $query->whereDate('start_time', '<=', $request->end_date);
+        }
+
+        // Filter status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Sorting
+        switch ($request->sort) {
+            case 'oldest':
+                $query->orderBy('start_time', 'asc');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            default:
+                $query->orderBy('start_time', 'desc'); // latest
+                break;
+        }
+
+        // Jika admin, tampilkan semua; jika bukan, tampilkan milik user
+        if (!auth()->user()->is_admin) {
+            $query->where('user_id', auth()->id());
+        }
+
+        $schedules = $query->paginate(10)->withQueryString();
         return view('schedules.waiting', compact('schedules'));
     }
 
     // admin: edit/update/delete
-    public function update(Request $request, Schedule $schedule)
+    public function update(Request $request, $id)
     {
+
+        // dd('masuk ke controller', $request->all());
+
+        // dd('masuk', $id);
+        $schedule = Schedule::findOrFail($id);
+
+
+        // dd($schedule->name);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'start_time' => 'required|date',
             'end_time' => 'required|date|after:start_time',
-            'description' => 'nullable|string',
-            'location' => 'nullable|string',
-            'latitude' => 'nullable|numeric',
-            'nomor_surat' => 'required|numeric|unique:schedules,nomor_surat',
-            'longitude' => 'nullable|numeric',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120', // 5MB
+            'location' => 'required|string|max:255',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            // 'nomor_surat' => 'required|string|unique:schedules,nomor_surat,' . $schedule->id,
+            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,zip|max:5120',
         ]);
+
+
 
         // Handle file upload
         if ($request->hasFile('attachment')) {

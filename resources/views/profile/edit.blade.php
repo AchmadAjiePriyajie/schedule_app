@@ -1,29 +1,75 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
-                </div>
-            </div>
+@section('title', 'Profil Saya')
 
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
-                </div>
-            </div>
+@section('content')
+<div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow">
+    <h2 class="text-xl font-bold mb-4 text-gray-700">Profil Saya</h2>
 
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.delete-user-form')
-                </div>
-            </div>
+    @if(session('success'))
+        <div class="bg-green-100 text-green-700 p-3 rounded mb-4">
+            {{ session('success') }}
         </div>
-    </div>
-</x-app-layout>
+    @endif
+
+    {{-- Form Update Profil --}}
+    <form action="{{ route('profile.update') }}" method="POST" class="space-y-4 mb-8">
+        @csrf
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Nama</label>
+            <input type="text" name="name" value="{{ old('name', $user->name) }}"
+                class="w-full border-gray-300 rounded-lg focus:ring-blue-200 focus:border-blue-400">
+            @error('name')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" name="email" value="{{ old('email', $user->email) }}"
+                class="w-full border-gray-300 rounded-lg focus:ring-blue-200 focus:border-blue-400">
+            @error('email')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            Simpan Perubahan
+        </button>
+    </form>
+
+    {{-- Form Ganti Password --}}
+    <h2 class="text-lg font-semibold mb-3 text-gray-700 border-t pt-4">Ganti Password</h2>
+
+    <form action="{{ route('profile.updatePassword') }}" method="POST" class="space-y-4">
+        @csrf
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Password Lama</label>
+            <input type="password" name="current_password"
+                class="w-full border-gray-300 rounded-lg focus:ring-blue-200 focus:border-blue-400">
+            @error('current_password')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Password Baru</label>
+            <input type="password" name="new_password"
+                class="w-full border-gray-300 rounded-lg focus:ring-blue-200 focus:border-blue-400">
+            @error('new_password')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Konfirmasi Password Baru</label>
+            <input type="password" name="new_password_confirmation"
+                class="w-full border-gray-300 rounded-lg focus:ring-blue-200 focus:border-blue-400">
+        </div>
+
+        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+            Ubah Password
+        </button>
+    </form>
+</div>
+@endsection
