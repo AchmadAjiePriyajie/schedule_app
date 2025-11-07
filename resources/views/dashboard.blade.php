@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto space-y-6">
-    
+
     <!-- Header Section -->
     <div class="flex items-center justify-between">
         <div>
@@ -10,83 +10,107 @@
             <p class="text-sm text-gray-500 mt-1">Kelola dan pantau jadwal Anda</p>
         </div>
         @if (auth()->user()->is_admin)
-        <a href="{{ route('schedules.index') }}" 
-           class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 group">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            <span class="font-medium">Tambah Jadwal</span>
-        </a>
+            <a href="{{ route('schedules.index') }}"
+                class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 group">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span class="font-medium">Tambah Jadwal</span>
+            </a>
         @endif
     </div>
 
     <!-- Statistics Cards -->
     @if (auth()->user()->is_admin)
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        
-        <!-- Total Schedules Card -->
-        <div class="group relative overflow-hidden bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
-            <div class="relative p-6">
-                <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-500 mb-1">Total Jadwal</p>
-                        <h3 class="text-3xl font-bold text-gray-800">{{ $totalSchedules ?? 0 }}</h3>
-                        <p class="text-xs text-gray-400 mt-2">Semua jadwal terdaftar</p>
-                    </div>
-                    <div class="bg-gradient-to-br from-gray-100 to-gray-200 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <!-- Total Schedules Card -->
+            <div
+                class="group relative overflow-hidden bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full -mr-16 -mt-16 opacity-50">
+                </div>
+                <div class="relative p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 mb-1">Total Jadwal</p>
+                            <h3 class="text-3xl font-bold text-gray-800">{{ $totalSchedules ?? 0 }}</h3>
+                            <p class="text-xs text-gray-400 mt-2">Semua jadwal terdaftar</p>
+                        </div>
+                        <div
+                            class="bg-gradient-to-br from-gray-100 to-gray-200 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="h-1 bg-gradient-to-r from-gray-400 to-gray-500 group-hover:h-1.5 transition-all duration-300"></div>
-        </div>
-
-        <!-- Today Schedules Card -->
-        <div class="group relative overflow-hidden bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-emerald-100">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
-            <div class="relative p-6">
-                <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-500 mb-1">Hari Ini</p>
-                        <h3 class="text-3xl font-bold text-emerald-600">{{ $todaySchedules ?? 0 }}</h3>
-                        <p class="text-xs text-gray-400 mt-2">Jadwal aktif hari ini</p>
-                    </div>
-                    <div class="bg-gradient-to-br from-emerald-100 to-teal-100 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
+                <div class="h-1 bg-gradient-to-r from-gray-400 to-gray-500 group-hover:h-1.5 transition-all duration-300">
                 </div>
             </div>
-            <div class="h-1 bg-gradient-to-r from-emerald-400 to-teal-500 group-hover:h-1.5 transition-all duration-300"></div>
-        </div>
 
-        <!-- Waiting Schedules Card -->
-        <div class="group relative overflow-hidden bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-amber-100">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-50 to-orange-50 rounded-full -mr-16 -mt-16 opacity-50"></div>
-            <div class="relative p-6">
-                <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-500 mb-1">Menunggu</p>
-                        <h3 class="text-3xl font-bold text-amber-600">{{ $waitingSchedules ?? 0 }}</h3>
-                        <p class="text-xs text-gray-400 mt-2">Perlu persetujuan</p>
-                    </div>
-                    <div class="bg-gradient-to-br from-amber-100 to-orange-100 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+            <!-- Today Schedules Card -->
+            <div
+                class="group relative overflow-hidden bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-emerald-100">
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-full -mr-16 -mt-16 opacity-50">
+                </div>
+                <div class="relative p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 mb-1">Hari Ini</p>
+                            <h3 class="text-3xl font-bold text-emerald-600">{{ $todaySchedules ?? 0 }}</h3>
+                            <p class="text-xs text-gray-400 mt-2">Jadwal aktif hari ini</p>
+                        </div>
+                        <div
+                            class="bg-gradient-to-br from-emerald-100 to-teal-100 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
+                <div
+                    class="h-1 bg-gradient-to-r from-emerald-400 to-teal-500 group-hover:h-1.5 transition-all duration-300">
+                </div>
             </div>
-            <div class="h-1 bg-gradient-to-r from-amber-400 to-orange-500 group-hover:h-1.5 transition-all duration-300"></div>
-        </div>
 
-    </div>
+            <!-- Waiting Schedules Card -->
+            <div
+                class="group relative overflow-hidden bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-amber-100">
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-50 to-orange-50 rounded-full -mr-16 -mt-16 opacity-50">
+                </div>
+                <div class="relative p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-500 mb-1">Menunggu</p>
+                            <h3 class="text-3xl font-bold text-amber-600">{{ $waitingSchedules ?? 0 }}</h3>
+                            <p class="text-xs text-gray-400 mt-2">Perlu persetujuan</p>
+                        </div>
+                        <div
+                            class="bg-gradient-to-br from-amber-100 to-orange-100 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    class="h-1 bg-gradient-to-r from-amber-400 to-orange-500 group-hover:h-1.5 transition-all duration-300">
+                </div>
+            </div>
+
+        </div>
     @endif
-
     <!-- Calendar Card -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-6">
@@ -97,19 +121,23 @@
 </div>
 
 <!-- Modal Detail Event -->
-<div id="eventModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4" onclick="closeModal()">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all" onclick="event.stopPropagation()">
+<div id="eventModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4"
+    onclick="closeModal()">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all"
+        onclick="event.stopPropagation()">
         <!-- Modal Header -->
         <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-6 rounded-t-2xl">
             <h2 id="modalTitle" class="text-xl font-bold text-white">Detail Acara</h2>
         </div>
-        
+
         <!-- Modal Body -->
         <div class="p-6 space-y-4">
             <div class="flex items-start gap-3">
                 <div class="bg-emerald-50 p-2 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
                 <div class="flex-1">
@@ -120,9 +148,12 @@
 
             <div class="flex items-start gap-3">
                 <div class="bg-blue-50 p-2 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                 </div>
                 <div class="flex-1">
@@ -133,8 +164,10 @@
 
             <div class="flex items-start gap-3">
                 <div class="bg-purple-50 p-2 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
                 <div class="flex-1">
@@ -146,7 +179,7 @@
 
         <!-- Modal Footer -->
         <div class="p-6 bg-gray-50 rounded-b-2xl">
-            <button onclick="closeModal()" 
+            <button onclick="closeModal()"
                 class="w-full px-4 py-2.5 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white rounded-lg transition-all duration-300 font-medium">
                 Tutup
             </button>
@@ -256,21 +289,27 @@
             animation: fadeIn 0.2s ease-out;
         }
 
-        #eventModal.flex > div {
+        #eventModal.flex>div {
             animation: slideUp 0.3s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         @keyframes slideUp {
-            from { 
+            from {
                 opacity: 0;
                 transform: translateY(20px) scale(0.95);
             }
-            to { 
+
+            to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
@@ -310,7 +349,7 @@
         }
 
         // Close modal with Escape key
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 closeModal();
             }

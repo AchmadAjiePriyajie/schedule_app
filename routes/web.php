@@ -40,7 +40,6 @@ Route::middleware(['auth'])->group(function () {
             'body' => 'Ini adalah email uji coba dari Tutorial Laravel: Send Email Via SMTP GMAIL @ qadrLabs.com'
         ];
 
-        Mail::to('achmadajie74.epic@gmail.com')->send(new SendEmail($data));
     });
     Route::get('/dashboard', [ScheduleController::class, 'dashboard'])->name('dashboard');
     Route::get('/api/schedules', [ScheduleController::class, 'getSchedules'])->name('api.schedules');

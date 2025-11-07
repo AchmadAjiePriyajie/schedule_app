@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Schedule;
+use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -94,15 +95,26 @@ class ScheduleController extends Controller
     public function dashboard()
     {
 
+        $today = Carbon::today();
+
         if (Auth::user()->is_admin) {
             $schedules = Schedule::with('user')->latest()->paginate(20);
             $waitingSchedules = Schedule::where('status', 0)->count();
+            $todaySchedules = Schedule::whereDate('start_time', '<=', $today)
+                ->whereDate('end_time', '>=', $today)
+                ->count();
+
+            $totalSchedules = Schedule::all()->count();
         } else {
             $schedules = Auth::user()->schedules()->latest()->paginate(20);
             $waitingSchedules = 0;
-
+            $todaySchedules = Auth::user()->schedules()
+                ->whereDate('start_time', '<=', $today)
+                ->whereDate('end_time', '>=', $today)
+                ->count();
+            $totalSchedules = Auth::user()->schedules()->count();
         }
-        return view('dashboard', compact(['schedules', 'waitingSchedules']));
+        return view('dashboard', compact(['schedules', 'waitingSchedules', 'todaySchedules', 'totalSchedules']));
     }
 
     public function attachments()
